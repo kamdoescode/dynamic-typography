@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Distance Type</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript">
+
+        var gateway = `ws://192.168.4.1:1337`;
+        var websocket;
+
+        window.addEventListener('load', onLoad);
+
+        //called when the page loads 
+        function onLoad(event) {
+            initWebSocket();
+        }
+
+
+        function initWebSocket() {
+            websocket = new WebSocket(gateway);
+            websocket.onopen = onOpen;
+            websocket.onclose = onClose;
+            websocket.onmessage = onMessage;
+        }
+
+
+        function onOpen(event) {
+            console.log('WebSocket connection opened');
+        }
+
+        function onClose(event) {
+            console.log('WebSocket connection closed');
+            setTimeout(initWebSocket, 2000); // Reconnect after 2 seconds
+        }
+
+        function onMessage(event) {
+            var data = JSON.parse(event.data);
+            var maxDistance = 60;
+            //map distance to offset
+            var minOffset = 2;
+            var maxOffset = 40;
+            var offset = maxOffset - ((data.distance / maxDistance) * (maxOffset - minOffset));
+            document.getElementById('center-text').style.textShadow = `2px ${offset}px ${offset}px black`;
+            console.log(data);
+        }
+
+        // function lerpColor(a,b,t){
+        //     return a + (b - a) * t;
+        // }
+
+        // function getColor(distance, maxDistance){
+        //     //clamp t between 0 and 1
+        //     var t = Math.max(0, Math.min(1, distance / maxDistance));
+        //     var r = Math.round(lerpColor(255, 0, t));
+        //     var g = 0;
+        //     var b = Math.round(lerpColor(0, 255, t));
+        //     return `rgb(${r},${g},${b})`;
+        // }
+
+    </script>
+</head>
+<body>
+    <div id="center-text">Sensor Distance</div>
+</body>
+</html>
+

@@ -1,0 +1,17 @@
+
+body {
+    background-color: white;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+#center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5em;
+    color: lightblue;
+    text-align: center;
+    text-shadow: 2px 2px 5px #000;
+}
