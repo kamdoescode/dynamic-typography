@@ -2,14 +2,16 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Distance Type</title>
+    <title>Dynamic Typography</title>
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript">
 
         var gateway = `ws://192.168.4.1:1337`;
         var websocket;
 
+
         window.addEventListener('load', onLoad);
+
 
         //called when the page loads 
         function onLoad(event) {
@@ -24,44 +26,90 @@
             websocket.onmessage = onMessage;
         }
 
-
+        
         function onOpen(event) {
             console.log('WebSocket connection opened');
         }
 
         function onClose(event) {
             console.log('WebSocket connection closed');
-            setTimeout(initWebSocket, 2000); // Reconnect after 2 seconds
+            setTimeout(initWebSocket, 2000); //reconnect after 2 seconds
         }
 
         function onMessage(event) {
             var data = JSON.parse(event.data);
-            var maxDistance = 60;
-            //map distance to offset
-            var minOffset = 2;
-            var maxOffset = 40;
-            var offset = maxOffset - ((data.distance / maxDistance) * (maxOffset - minOffset));
-            document.getElementById('center-text').style.textShadow = `2px ${offset}px ${offset}px black`;
-            console.log(data);
+            applySensorEffects(data.distance); //apply the changing effects
+            console.log(data); //print value to console
         }
 
-        // function lerpColor(a,b,t){
-        //     return a + (b - a) * t;
-        // }
+        
+        window.onload = function() {
+            document.getElementById('font-display').focus();
+        };
 
-        // function getColor(distance, maxDistance){
-        //     //clamp t between 0 and 1
-        //     var t = Math.max(0, Math.min(1, distance / maxDistance));
-        //     var r = Math.round(lerpColor(255, 0, t));
-        //     var g = 0;
-        //     var b = Math.round(lerpColor(0, 255, t));
-        //     return `rgb(${r},${g},${b})`;
-        // }
+
+        function applySensorEffects(sensorValue) {
+            const gridItems = document.querySelectorAll('.grid-item');
+
+            gridItems.forEach((item, index) => {
+                //scale size
+                const fontSize = mapRange(sensorValue, 0, 300, 3, 8);
+                item.style.fontSize = `${fontSize}em`;
+    
+                // add shadow
+                const shadowOffset = mapRange(sensorValue, 0, 300, 2, 20);
+                item.style.textShadow = `2px ${shadowOffset}px 5px rgba(71,71,71,0.5)`;
+                
+                //change text color
+                if (sensorValue > 100){
+                    item.style.color = 'rgb(249, 88, 160)'; // pink
+                } else if (sensorValue > 50){
+                    item.style.color = 'rgb(215, 157, 250)'; // purple
+                } else if (sensorValue > 20){
+                    item.style.color = 'rgb(255, 203, 113)'; // orange
+                } else {
+                    item.style.color = 'rgb(255,255,255)'; // white
+                }
+
+            }); 
+        }
+
+
+        // function to map sensor values to CSS ranges
+        function mapRange(value, inMin, inMax, outMin, outMax) {
+            return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+        }
 
     </script>
 </head>
 <body>
-    <div id="center-text">Sensor Distance</div>
+    <div style="position: absolute; top: 0; left: 0; margin: 1em;">
+        <div id="type-title">Dynamic Typography</div>
+        <div id="type-title-subhead">Typeface by Kamryn Hanley</div>
+    </div>
+
+    <div style="margin-top: 20em;">
+        <div id="grid-container"></div>
+        <script>
+            const container = document.getElementById('grid-container');
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!"#&*£?';
+
+            for (let i = 0; i < characters.length; i++){
+                const char = characters[i];
+                const item = document.createElement('div');
+                item.className = 'grid-item';
+                item.id = `char-${i}`; // Add unique ID
+                item.textContent = `${char}${char.toLowerCase()}`;
+                container.appendChild(item);
+            }
+        </script>
+    </div>
+    <div id="font-display" class="font-preview" contenteditable="true"></div>
+    
+
+    <div style ="text-align: center; margin-top: 5em; margin-bottom: 3em; word-spacing: 5em;" >
+        <div id="bottom-text">Dynamic Typography K Hanley 2025</div> 
+    </div>
 </body>
 </html>
 
